@@ -14,18 +14,26 @@ def create_app(config_class=None):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    # usually try to use flask blueprints to break up the application and register
+    # the resources within the blueprint
     from app.resources.v1.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/v1/auth')
 
     from app.resources.v1.users import user_bp
     app.register_blueprint(user_bp, url_prefix='/v1/users')
 
+    # resources can also be added directly in thie create_app function
     api = Api(app)
 
     api.add_resource(SecretResource, '/secret')
 
+    # Create the JWTManager and associate it with the Flask app
+    # Configuration: https://flask-jwt-extended.readthedocs.io/en/latest/options.html#configuration-options
     jwt = JWTManager(app)
 
+    # Access tokens by default have a timeout of 15 minutes, and refresh tokens have a timeout of 30 days
+    # to logout, or prematurely force a token to expire, it must be placed on a blacklist and that blacklist
+    # needs to be checked.
     @jwt.token_in_blacklist_loader
     def token_check(decrypted_token):
         return check_if_token_in_blacklist(decrypted_token)
