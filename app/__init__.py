@@ -2,29 +2,33 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 from flask import Flask
-from app.resources.AllUsers import AllUsers
-from app.resources.SecretResource import SecretResource
-from app.resources.TokenRefresh import TokenRefresh
-from app.resources.UserLogin import UserLogin
-from app.resources.UserLogoutAccess import UserLogoutAccess
-from app.resources.UserLogoutRefresh import UserLogoutRefresh
-from app.resources.UserRegistration import UserRegistration
-
+from app.resources.v1.SecretResource import SecretResource
+from app.services.jwt_services import check_if_token_in_blacklist
 from flask_restful import Api
+
+from flask_jwt_extended import JWTManager
+from app.services.jwt_services import check_if_token_in_blacklist
+
 
 def create_app(config_class=None):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    from app.resources.v1.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/v1/auth')
+
+    from app.resources.v1.users import user_bp
+    app.register_blueprint(user_bp, url_prefix='/v1/users')
+
     api = Api(app)
 
-    api.add_resource(AllUsers, '/users')
-    api.add_resource(UserRegistration, '/registration')
-    api.add_resource(UserLogin, '/login')
-    api.add_resource(UserLogoutAccess, '/logout/access')
-    api.add_resource(UserLogoutRefresh, '/logout/refresh')
-    api.add_resource(TokenRefresh, '/token/refresh')
     api.add_resource(SecretResource, '/secret')
+
+    jwt = JWTManager(app)
+
+    @jwt.token_in_blacklist_loader
+    def token_check(decrypted_token):
+        return check_if_token_in_blacklist(decrypted_token)
 
     try:
         if not app.debug and not app.testing:

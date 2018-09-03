@@ -5,6 +5,125 @@
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
-POST http://localhost:5000/registration
+POST {{host-url}}/v1/auth/registration
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 500, "Response should not be 200 for registration with no username/password");
+});
+%}
+###
+
+POST {{host-url}}/v1/auth/registration
+Content-Type: application/json
+
+{
+  "username": "foo",
+  "password": "bar"
+}
+
+> {%
+client.test("Request was successful", function() {
+    client.assert(response.status === 200, "Response should be 200")
+});
+
+client.global.set("access_token", response.body.access_token);
+client.global.set("refresh_token", response.body.refresh_token);
+
+%}
+###
+
+POST {{host-url}}/v1/auth/registration
+Content-Type: application/json
+
+{
+  "username": "john",
+  "password": "public"
+}
+
+###
+
+POST {{host-url}}/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "foo",
+  "password": "bar"
+}
+
+###
+
+POST {{host-url}}/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "foo",
+  "password": "baz"
+}
+
+> {%
+client.test("Test User does not exist", function() {
+    client.assert(response.status === 500, "Response should be 500")
+});
+
+%}
+
+###
+
+GET {{host-url}}/v1/users/all
+Authorization: Bearer {{access_token}}
+
+
+###
+
+GET {{host-url}}/secret
+Authorization: Bearer {{access_token}}
+
+
+###
+
+GET {{host-url}}/secret
+
+> {%
+client.test("Test Missing Auth Header", function() {
+    client.assert(response.status === 401, "Response should be 401")
+});
+
+%}
+
+###
+
+DELETE {{host-url}}/v1/users/all
+Authorization: Bearer {{access_token}}
+
+
+###
+POST {{host-url}}/v1/auth/logout/access
+Authorization: Bearer {{access_token}}
+
+###
+
+GET {{host-url}}/secret
+Authorization: Bearer {{access_token}}
+
+> {%
+client.test("Token Removed", function() {
+    client.assert(response.status === 401 || response.status === 500, "Response should be 401")
+});
+
+%}
+
+
+###
+
+POST {{host-url}}/v1/auth/logout/refresh
+Authorization: Bearer {{refresh_token}}
+
+> {%
+client.test("Test Refresh Token Removed", function() {
+    client.assert(response.status === 200, "Response should be 200")
+});
+
+%}
 
 ###

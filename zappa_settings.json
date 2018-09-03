@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "app_function": "main.app",
+        "aws_region": "us-east-1",
+        "profile_name": "spr",
+        "project_name": "flask-rest-star",
+        "runtime": "python3.6",
+        "s3_bucket": "zappa-yyykzahdf"
+    }
+}

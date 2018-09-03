@@ -57,6 +57,9 @@ users = [
 class Config(object):
     # needed by flask wtf for CSRC
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'YOU WILL NEVER GUESS'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-string'
+    JWT_BLACKLIST_ENABLED = os.environ.get('JWT_BLACKLIST_ENABLED') or True
+    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
     @staticmethod
     def load_users():
