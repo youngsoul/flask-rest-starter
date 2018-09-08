@@ -5,6 +5,7 @@
         "profile_name": "spr",
         "project_name": "flask-rest-star",
         "runtime": "python3.6",
-        "s3_bucket": "zappa-yyykzahdf"
+        "s3_bucket": "zappa-yyykzahdf",
+        "xray_tracing": true
     }
 }
