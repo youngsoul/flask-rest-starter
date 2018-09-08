@@ -35,7 +35,8 @@ Run ```python main.py```
 
 Open the ```rest_test.http``` file
 
-this is a test script to exercise the endpoints
+this is a test script to exercise the endpoints.  When running a test case, you will be prompted for the environment.
+
 
 ## Zappa
 

@@ -5,6 +5,8 @@ from flask import Flask
 from app.resources.v1.SecretResource import SecretResource
 from app.services.jwt_services import check_if_token_in_blacklist
 from flask_restful import Api
+from app.models import UserModel
+from app.services import db_services
 
 from flask_jwt_extended import JWTManager
 from app.services.jwt_services import check_if_token_in_blacklist
@@ -30,6 +32,12 @@ def create_app(config_class=None):
     # Create the JWTManager and associate it with the Flask app
     # Configuration: https://flask-jwt-extended.readthedocs.io/en/latest/options.html#configuration-options
     jwt = JWTManager(app)
+
+    # Initialize the users from the config
+    existing_users = config_class.load_users()
+    for user in existing_users:
+        user = UserModel(user['username'], user['password'])
+        db_services.save_user(user)
 
     # Access tokens by default have a timeout of 15 minutes, and refresh tokens have a timeout of 30 days
     # to logout, or prematurely force a token to expire, it must be placed on a blacklist and that blacklist
