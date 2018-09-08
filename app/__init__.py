@@ -24,6 +24,10 @@ def create_app(config_class=None):
     from app.resources.v1.users import user_bp
     app.register_blueprint(user_bp, url_prefix='/v1/users')
 
+    from app.resources.v1.unsecured import unsecured_bp
+    app.register_blueprint(unsecured_bp, url_prefix='/v1/unsecured')
+
+
     # resources can also be added directly in thie create_app function
     api = Api(app)
 

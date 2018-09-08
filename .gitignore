@@ -210,3 +210,4 @@ Temporary Items
 
 venv/
 venv36/
+/logs/app_logs.log.1
